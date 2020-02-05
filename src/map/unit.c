@@ -277,9 +277,9 @@ static int unit_steptimer(int tid, int64 tick, int id, intptr_t data)
 }
 
 /**
- * Warps homunuculus or mercenary towards his master in case he's too far away for 3 seconds.
+ * Warps homunculus or mercenary towards his master in case he's too far away for 3 seconds.
  * @param master_bl: block_list of master
- * @param slave_bl: block_list of homunuculus/mercenary master owns
+ * @param slave_bl: block_list of homunculus/mercenary master owns
  * @return 0: success, 1: fail
  */
 static int unit_warpto_master(struct block_list *master_bl, struct block_list *slave_bl)
@@ -324,13 +324,14 @@ static int unit_warpto_master(struct block_list *master_bl, struct block_list *s
 static int unit_walk_toxy_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct block_list *bl = map->id2bl(id);
-	nullpo_retr(1, bl);
-	nullpo_retr(1, bl->prev); // Stop moved because it is missing from the block_list
+	if (bl == NULL || bl->prev == NULL) // Stop moved because it is missing from the block_list
+		return 1;
 	struct map_session_data *sd  = BL_CAST(BL_PC, bl);
 	struct mob_data         *md  = BL_CAST(BL_MOB, bl);
 	struct mercenary_data   *mrd = BL_CAST(BL_MER, bl);
 	struct unit_data        *ud  = unit->bl2ud(bl);
-	nullpo_retr(1, ud);
+	if (ud == NULL)
+		return 1;
 
 	if (ud->walktimer != tid) {
 		ShowError("unit_walk_timer mismatch %d != %d\n",ud->walktimer,tid);
